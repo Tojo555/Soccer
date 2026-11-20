@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JVA Soccer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF1EC; --ink:#15231A; --muted:#55645A; --panel:#FFFFFF; --line:#CBD4CC; --pitch:#2F7A47; --focus:#1F5FAF;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){ --bg:#101813; --ink:#E4EBE5; --muted:#9AA99F; --panel:#18231C; --line:#2B3A30; --focus:#7FB2F0; color-scheme:dark; }
+}
+:root[data-theme="dark"]{ --bg:#101813; --ink:#E4EBE5; --muted:#9AA99F; --panel:#18231C; --line:#2B3A30; --focus:#7FB2F0; color-scheme:dark; }
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Barlow,"Segoe UI",system-ui,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:14px max(16px,env(safe-area-inset-right)) 56px max(16px,env(safe-area-inset-left))}
+.credit-row{display:flex;justify-content:flex-end;margin-bottom:10px}
+.credit{font-size:.85rem;font-weight:500;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.hero{background:var(--pitch);color:#fff;border-radius:16px;padding:28px 22px 26px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:50%;width:200px;height:200px;border:3px solid rgba(255,255,255,.22);border-radius:50%;transform:translateY(-50%)}
+.hero::before{content:"";position:absolute;right:38px;top:0;bottom:0;border-left:3px solid rgba(255,255,255,.22)}
+h1{font:700 clamp(2.6rem,9vw,4rem)/.95 "Barlow Condensed","Arial Narrow",sans-serif;margin:0;position:relative}
+.hero p{margin:.5rem 0 0;max-width:min(46ch,72%);opacity:.92;position:relative}
+h2{font:700 1.7rem/1.1 "Barlow Condensed","Arial Narrow",sans-serif;margin:32px 0 10px}
+.list{display:grid;gap:12px}
+a.item{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:start;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--pitch);border-radius:12px;padding:16px 18px}
+a.item:hover{border-color:var(--pitch)}
+a.item:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.kind{grid-row:span 2;font:700 .95rem/1 "Barlow Condensed","Arial Narrow",sans-serif;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 9px;width:92px;text-align:center}
+.title{font:700 1.35rem/1.15 "Barlow Condensed","Arial Narrow",sans-serif}
+.desc{color:var(--muted);font-size:.98rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="credit-row"><span class="credit">Prepared with AI support, reviewed by Mr. Johnson</span></div>
+  <header class="hero">
+    <h1>JVA Soccer</h1>
+    <p>Training tools and drills from Mr. Johnson. Open any of these on your phone.</p>
+  </header>
+
+  <h2>Train on your own</h2>
+  <div class="list">
+    <a class="item" href="wall-work.html">
+      <span class="kind">Trainer</span>
+      <span class="title">Wall work: first touch in every direction</span>
+      <span class="desc">Hold your phone, tap Kick as you hit the wall, and play the rebound where the voice calls it. Wall, pass and dribble versions, plus an animated demo.</span>
+    </a>
+  </div>
+
+  <h2>Team tactics</h2>
+  <div class="list">
+    <a class="item" href="433-passing-options.html">
+      <span class="kind">Animation</span>
+      <span class="title">4-3-3 passing options and runs</span>
+      <span class="desc">How our 4-3-3 moves the ball: build-up, CB carries, goal kicks, playing under pressure and counters. Watch the passing options and attacking runs.</span>
+    </a>
+  </div>
+
+  <h2>Drills</h2>
+  <div class="list">
+    <a class="item" href="give-and-go-gauntlet.pdf">
+      <span class="kind">PDF</span>
+      <span class="title">Give-and-Go Gauntlet</span>
+      <span class="desc">Defending the 2v1, executing the give-and-go, and keeping the shape of the back four.</span>
+    </a>
+  </div>
+</div>
+</body>
+</html>

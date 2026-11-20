@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>4-3-3 passing options and runs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --bg: #eceff2; --panel: #ffffff; --ink: #131d27; --muted: #55636f; --line: #cfd6dc;
+  --accent: #1c5fd6; --accent-ink: #ffffff; --focus: #e08a00;
+  --head: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1418; --panel: #171f26; --ink: #e8eef3; --muted: #9aa8b4;
+    --line: #2b3640; --accent: #5b94ff; --accent-ink: #0b1220; --focus: #ffb53d;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1418; --panel: #171f26; --ink: #e8eef3; --muted: #9aa8b4;
+  --line: #2b3640; --accent: #5b94ff; --accent-ink: #0b1220; --focus: #ffb53d;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 18px 16px 40px; }
+header.top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 6px 24px; margin-bottom: 14px; }
+h1 { font-family: var(--head); font-weight: 700; font-size: clamp(30px, 5vw, 44px); line-height: 1.05; margin: 0; }
+.sub { color: var(--muted); margin: 6px 0 0; max-width: 62ch; }
+.stamp { margin-left: auto; text-align: right; font-size: 13px; font-weight: 600; color: var(--muted); border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 10px; }
+button:focus-visible, select:focus-visible, input:focus-visible, canvas:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.stage { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+canvas { display: block; width: 100%; height: auto; border-radius: 6px; touch-action: none; cursor: grab; }
+canvas:active { cursor: grabbing; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 2px 2px; }
+.btn { font: 600 15px var(--body); padding: 8px 14px; min-height: 44px; border-radius: 6px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.ctl { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+select { font: 500 14px var(--body); padding: 8px; min-height: 44px; border-radius: 6px; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); max-width: 100%; }
+input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--accent); }
+.status { margin-left: auto; font-size: 14px; color: var(--muted); text-align: right; min-height: 21px; }
+.readout { display: flex; flex-wrap: wrap; gap: 6px 22px; padding: 8px 2px 0; font-size: 14px; color: var(--muted); }
+.readout b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 8px 2px 0; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 15px; height: 15px; border-radius: 50%; border: 2px solid #111; display: inline-block; }
+.ln { width: 24px; height: 0; border-top: 3px dashed; display: inline-block; }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.card h2 { font-family: var(--head); font-size: 24px; margin: 0 0 4px; font-weight: 700; }
+.card p { margin: 0 0 8px; max-width: 62ch; }
+.card p:last-child { margin-bottom: 0; }
+.how { color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>4-3-3 passing options</h1>
+      <p class="sub">Two holding midfielders (LCDM and RCDM) and one CM in front. See who the player on the ball can pass to, and the runs the others make around him. Every carrier has a safe back pass plus a left and a right option.</p>
+    </div>
+    <div class="stamp">Prepared with AI support, reviewed by Mr. Johnson</div>
+  </header>
+
+  <div class="stage">
+    <canvas id="pitch" width="2196" height="1456" tabindex="0"
+      role="img" aria-label="Top-down pitch showing a 4-3-3 team. The ball is passed up the pitch, the player on the ball shows his pass options, and the other players make runs."></canvas>
+    <div class="controls">
+      <button class="btn primary" id="play" type="button">Pause</button>
+      <button class="btn" id="next" type="button">Next pass</button>
+      <button class="btn" id="replay" type="button">Replay</button>
+      <label class="ctl">Variation
+        <select id="variation">
+          <option value="buildAll" selected>Build-up: all three versions in a row</option>
+          <option value="build">Build-up 1: the winger runs into the corner</option>
+          <option value="build10">Build-up 2: the CM runs into the corner</option>
+          <option value="build11">Build-up 3: the full-back overlaps first (rare)</option>
+          <option value="carry">CB carries out of the back</option>
+          <option value="goalkick">Goal kick shape</option>
+          <option value="pressure">Pressure down one side</option>
+          <option value="counterA">Counter: CF has time (lead pass)</option>
+          <option value="counterB">Counter: CF has no time (play back)</option>
+        </select>
+      </label>
+      <label class="ctl">Attack down the
+        <select id="attack">
+          <option value="right" selected>right</option>
+          <option value="left">left</option>
+          <option value="both">both sides (alternate)</option>
+        </select>
+      </label>
+      <label class="ctl">Speed
+        <select id="speed">
+          <option value="0.5">0.5×</option>
+          <option value="1" selected>1×</option>
+          <option value="1.5">1.5×</option>
+        </select>
+      </label>
+      <label class="ctl"><input type="checkbox" id="zoomx" checked> Zoom on crossing</label>
+      <div class="status" id="status" aria-live="polite"></div>
+    </div>
+    <div class="readout">
+      <span>Team length <b id="len">0 m</b></span>
+      <span>Team width <b id="wid">0 m</b></span>
+      <span>Ball side <b id="side">centre</b></span>
+      <span>Carrier options <b id="opts">none</b></span>
+    </div>
+    <div class="legend" aria-label="Key">
+      <span><i class="sw" style="background:#1f63e0"></i>Our team (position shown on each player)</span>
+      <span><i class="sw" style="background:#e03434"></i>Opponents (red)</span>
+      <span><i class="ln" style="color:#ffd54a"></i>Safe back pass option</span>
+      <span><i class="ln" style="color:#ffffff;border-color:#9aa8b4"></i>Left and right options</span>
+    </div>
+    <div class="legend" aria-label="Crossing options key">
+      <span>Build-up crossing area, one at a time:</span>
+      <span><i class="ln" style="color:#4fd8ff"></i>1. Low cross to the CF at the near post</span>
+      <span><i class="ln" style="color:#ff7ad9"></i>2. Far-post cross to the opposite winger</span>
+      <span><i class="ln" style="color:#ffd54a"></i>3. Cut-back to the player on the 18</span>
+      <span><i class="ln" style="color:#ff9d9d"></i>Defensive line</span>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="card" id="note"></div>
+    <div class="card">
+      <h2>Try it yourself</h2>
+      <p>Press and drag on the pitch to move the ball anywhere. The shape follows it live, the player nearest the ball shows his pass options, and, in the build-up versions, the crossing options appear when you drag the ball into a wide crossing spot. In the passing sequences the view zooms in on the box when the ball reaches the crossing area. Press Replay to go back to the passing sequence.</p>
+      <p class="how">Rules used in every variation: the player on the ball always has a safe back pass (yellow) and an option to his left and right (white), either square or slightly forward or backward. The team slides toward the ball, and the holding midfielder on the far side stays just across the middle line, still central.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // Pitch is 105 x 68 m. x = 0 is our goal line, attacking left to right.
+  // Top of the screen is the attacking team's left. LCDM = 6 (top), RCDM = 8 (bottom).
+  var PW = 105, PH = 68, S = 10, PAD = 24;
+  var CW = PW * S + PAD * 2, CH = PH * S + PAD * 2;
+
+  var BASE = {
+    1: [5, 34, "G"],
+    3: [26, 9, "D"], 4: [22, 25, "D"], 5: [22, 43, "D"], 2: [26, 59, "D"],
+    6: [36, 19, "M"], 8: [36, 49, "M"], 10: [46, 34, "M"],
+    7: [70, 10, "F"], 9: [76, 34, "F"], 11: [70, 58, "F"]
+  };
+  // Goal kick layout. Centre-backs sit midway between the 6-yard and 18-yard box corners,
+  // full-backs level with the 18-yard line but wider, the two holding midfielders and the CM all low,
+  // wingers where the centre circle meets the halfway line, CF on the nearest edge of the circle.
+  var GK_LAYOUT = {
+    1: [5, 34, "G"],
+    4: [11, 19.34, "D"], 5: [11, 48.66, "D"], 3: [17, 6.5, "D"], 2: [17, 61.5, "D"],
+    6: [25, 23, "M"], 8: [25, 45, "M"], 10: [29, 34, "M"],
+    7: [52.5, 24.85, "F"], 11: [52.5, 43.15, "F"], 9: [43.35, 34, "F"]
+  };
+  // Counter layout (ball just won, written for the ball on the right): back line along the top of the box, midfield low, strong-side winger (11) tucked inside
+  // defending, CF in his goal-kick spot, opposite winger (7) slightly lower than his goal-kick spot.
+  var COUNTER_LAYOUT = {
+    1: [5, 34, "G"],
+    4: [18, 26, "D"], 5: [18, 42, "D"], 3: [17, 18, "D"], 2: [17, 50, "D"],
+    6: [28, 24, "M"], 8: [32, 40, "M"], 10: [28, 33, "M"],
+    9: [43.35, 34, "F"], 11: [27, 47, "F"], 7: [47, 23, "F"]
+  };
+  var W = { G: 0.04, D: 0.12, M: 0.34, F: 0.38, y: 0.30 };
+  // Position names shown on the players (top of the screen is the attacking team's left).
+  var NAME = { 1: "GK", 2: "RB", 3: "LB", 4: "LCB", 5: "RCB", 6: "LCDM", 8: "RCDM", 10: "CM", 7: "LW", 11: "RW", 9: "CF" };
+  function nm(id) { return id ? (NAME[id] || String(id)) : ""; }
+  var MIR = { 1: 1, 2: 3, 3: 2, 4: 5, 5: 4, 6: 8, 8: 6, 7: 11, 11: 7, 9: 9, 10: 10 };
+  var STYLE = {
+    back: { fill: "#1f63e0", edge: "#0a2a6b", text: "#ffffff" },
+    mid:  { fill: "#1f63e0", edge: "#0a2a6b", text: "#ffffff" },
+    fwd:  { fill: "#1f63e0", edge: "#0a2a6b", text: "#ffffff" }
+  };
+  var GROUP = { 1: "back", 2: "back", 3: "back", 4: "back", 5: "back", 6: "mid", 8: "mid", 10: "mid", 7: "fwd", 9: "fwd", 11: "fwd" };
+
+  var PASS_T = 1.8, DWELL = 1.4, LEAD_T = 1.5;
+
+  // Variations, written for an attack down the right (bottom of the screen).
+  var VARS = {
+    // Build-up 1: the winger runs into the corner (no overlap). Build-up 2: the CM runs into the corner. Build-up 3: the full-back overlaps first (rare).
+    build:    { seq: [1, 5, 8, 5, 10, 9, 11], ov: 2, tuck: 11, depth: 98, options: true, backOpt: "ov", cbRcv: 10, noOverlap: true },
+    build10:  { seq: [1, 5, 4, 6, 9, 2, 10], ov: 2, tuck: 11, depth: 98, options: true, backOpt: "ov", cbRcv: "tuck", noOverlap: true, lineOff: 24, decoy: true, cmUpFrom: 2, rcvPreOff: 6, runV: 9 },
+    build11:  { seq: [1, 5, 8, 5, 10, 11, 2], ov: 2, tuck: 11, depth: 98, options: true, backOpt: "tuck", cbRcv: 10, runV: 9 },
+    carry:    { seq: [1, 5, 10, 11], carry: { cb: 5, cm: 8 }, hold: { 1: 3.2 }, line: true, dW: 0.12, lineOff: 6 },
+    goalkick: { seq: [1, 9, 8, 10, 11], layout: GK_LAYOUT, scale: 0.2, layoutUntil: 2, snap: true, line: true },
+    pressure: { seq: [1, 2, 11, 8, 11], press: { holder: 2, wing: 11, cm: 8, from: 1, to: 2, adv: 3 }, line: true },
+    counterA: { seq: [8, 9, 7], layout: COUNTER_LAYOUT, scale: 1, shiftRef: 31, mW: 0.4, dW: 0.2, yShift: 0.1, layoutUntil: 99, snap: true, shot: true, hold: { 1: 2.2, 2: 1.6 },
+                through: { runner: 7, pt: [76, 38], runY: 25 }, near: 11, line: true, lineFixed: 62, reds: true, optLine: true, runV: 8.5, leadT: 2.4 },
+    counterB: { seq: [8, 9, 6, 11], layout: COUNTER_LAYOUT, scale: 1, shiftRef: 31, mW: 0.4, dW: 0.2, yShift: 0.1, layoutUntil: 99, snap: true, shot: true, hold: { 1: 1.6, 2: 2.8, 3: 1.6 }, pressCF: true,
+                dribble: { idx: 2, dx: 9 }, through: { runner: 11, pt: [78, 52], runY: 63 }, cfPush: true, line: true, lineFixed: 62, reds: true, runV: 8.5, leadT: 2.4 }
+  };
+  var TITLES = {
+    build: "Build-up 1: the winger runs into the corner", build10: "Build-up 2: the CM runs into the corner", build11: "Build-up 3: the full-back overlaps first (rare)",
+    carry: "CB carries out of the back", goalkick: "Goal kick shape", pressure: "Pressure down one side",
+    counterA: "Counter, CF has time", counterB: "Counter, CF has no time"
+  };
+  var BUILD_CYCLE = ["build", "build10", "build11"];
+
+  var variation = "buildAll", attack = "right", side = "right", plan = null, buildStep = 0;
+  function curKey() { return variation === "buildAll" ? BUILD_CYCLE[buildStep] : variation; }
+
+  function getPlan() {
+    var key = curKey(), v = VARS[key], left = side === "left";
+    function mp(id) { return left ? MIR[id] : id; }
+    var seq = v.seq.map(mp), lastId = seq[seq.length - 1];
+    var base = null;
+    if (v.layout) {
+      base = {};
+      for (var lid in v.layout) {
+        var le = v.layout[lid];
+        if (left) base[MIR[lid]] = [le[0], PH - le[1], le[2]]; else base[lid] = [le[0], le[1], le[2]];
+      }
+    }
+    var p = {
+      seq: seq, hold: {}, scale: v.scale === undefined ? 1 : v.scale, base: base, layoutUntil: v.layoutUntil || 0,
+      snap: !!v.snap, shot: !!v.shot, pressCF: !!v.pressCF, lead: v.lead ? { runner: mp(v.lead.runner) } : null,
+      options: !!v.options, noOverlap: !!v.noOverlap, dW: v.dW, lineOff: v.lineOff || 0, decoy: !!v.decoy, cmUpFrom: v.cmUpFrom || 0, rcvPreOff: v.rcvPreOff, falseNine: !v.through, support: !!v.support, line: v.line !== undefined ? v.line : !!v.options, drop: v.drop || 102,
+      through: v.through ? { runner: mp(v.through.runner), pt: [v.through.pt[0], left ? PH - v.through.pt[1] : v.through.pt[1]], runY: left ? PH - v.through.runY : v.through.runY } : null,
+      lineFixed: v.lineFixed || 0, shiftRef: v.shiftRef || 0, mW: v.mW, yShift: v.yShift, dribble: v.dribble || null, reds: !!v.reds, redStart: v.reds ? [38.5, left ? PH - 45 : 45] : null,
+      near: v.near ? mp(v.near) : 0, cfPush: !!v.cfPush, optLine: !!v.optLine, runV: v.runV || 7, leadT: v.leadT || LEAD_T,
+      ov: 0, carry: null, press: null, cs: left ? -1 : 1, key: key
+    };
+    var k;
+    if (v.hold) for (k in v.hold) p.hold[k] = v.hold[k];
+    if (p.options) p.hold[seq.length - 1] = 1.0;
+    else if (!p.shot && p.hold[seq.length - 1] === undefined) p.hold[seq.length - 1] = 3.2;
+    var farCM = left ? 8 : 6, text = "";
+    var strongW = left ? 7 : 11, oppW = left ? 11 : 7;
+    var winner = nm(left ? 6 : 8);
+    if (v.ov) {
+      p.ov = mp(v.ov); p.tuck = mp(v.tuck); p.opp = left ? v.ov : MIR[v.ov]; p.depth = v.depth;
+    }
+    p.backOpt = v.backOpt || "";
+    p.nearCdm = left ? 6 : 8; p.nearCb = left ? 4 : 5;
+    p.cbRcvId = v.cbRcv === "tuck" ? p.tuck : (v.cbRcv ? mp(v.cbRcv) : 10);
+    var backText = p.backOpt === "ov"
+      ? "The " + nm(p.ov) + " drops back along the touchline as a straight pass-back option, out of the cut-back lane."
+      : "The " + nm(p.tuck) + " drops back along the touchline as a straight pass-back option, out of the cut-back lane.";
+    if (p.backOpt === "ov") backText = "The " + nm(p.ov) + " is the straight pass-back option along the touchline, out of the cut-back lane.";
+    var finish = "The dashed red line is the defensive line. Nobody in the front three can get higher than it, and before the lead pass the receiver waits level with it so he is onside. The lead pass is a shorter one, played from roughly 27 to 39 yards out after a bit more build-up. The ball goes into the corner first, then he catches up to it, and the defensive line drops deep as soon as it is played. The CF is a false nine, dropping between the lines to link play, until the team approaches the box, and then he moves to the near post. The opposite winger (" + nm(oppW) + ") goes to the actual far post, level with the six-yard line and a little wider than the post. The " + nm(p.cbRcvId) + " is on the 18-yard line for the cut-back, the far-side " + nm(farCM) + " is near the top of the 18, and the opposite full-back (" + nm(p.opp) + ") pinches in centrally. " + backText + " The ball-side holding midfielder stays back. The three options then light up one at a time, each only once its player is in position: the low cross to the CF at the near post, then the far-post cross, then the cut-back.";
+    var lowText = " The back four stay low after the ball goes forward, and the " + nm(p.ov) + " stays level with the " + nm(p.nearCdm) + " and does not go past him until the final ball, the lead pass into the corner, is played.";
+    if (key === "build") {
+      text = "Build-up 1: the " + nm(p.tuck) + " runs into the corner, and the overlap is not used because it will be rare. Whoever has the ball has a safe back pass (yellow dashed line) and left and right options (white dashed lines), some near and some medium, and a centre-back on the ball always has the other centre-back as a back pass option. Players stand still when they receive the ball. There is one back pass: the " + nm(p.nearCdm) + " plays back to the " + nm(p.nearCb) + ", who finds the CM. The CM plays to the CF, who plays the lead pass up into the corner for the " + nm(p.tuck) + "'s run behind the line. When the CM has the ball the " + nm(p.tuck) + " is already wide on the sideline." + lowText + " " + finish;
+    }
+    if (key === "build10") {
+      text = "Build-up 2: the CM runs into the corner from a higher place. The ball is worked out between the centre-backs (the " + nm(p.nearCb) + " to the " + nm(left ? 5 : 4) + ", who always has a back pass option) and up through the " + nm(farCM) + " to the CF. The ball is already in the offensive area when the CF receives it, with the CF up against the defensive line, and the " + nm(p.ov) + " is already high, well ahead of the CDMs. The CF cycles it to the " + nm(p.ov) + ", who plays the final ball into the corner for the CM's run. The CM is already around the 18, level with the deep defensive line, and the " + nm(p.tuck) + " makes a decoy run toward goal without getting the pass. After the CM goes, the " + nm(p.tuck) + " is on the 18 for the cut-back. The back four stay low after the ball goes forward. " + finish;
+    }
+    if (key === "build11") {
+      text = "Build-up 3: the overlap, which is rare. The ball is worked out with a back pass from the " + nm(p.nearCdm) + " to the " + nm(p.nearCb) + ", who finds the CM. The CM plays to the " + nm(p.tuck) + ", who plays the lead pass into the corner for the " + nm(p.ov) + "'s run. The " + nm(p.ov) + " stays level with the " + nm(p.nearCdm) + " until that final ball is played, then sprints into the corner and crosses. The back four stay low after the ball goes forward. The CM is on the 18 for the cut-back. " + finish;
+    }
+    if (v.carry) {
+      p.carry = { cb: mp(v.carry.cb), cm: mp(v.carry.cm) };
+      text = "CB carries: the " + nm(p.carry.cb) + " receives from the keeper and drives out of the back into midfield. The " + nm(p.carry.cm) + " drops into his place so the back line stays a four, and the other defenders stay low, just above the 18. The CM stays lower and the CF stays high on the defensive line, so the carrier has space to carry into. The ball then works up to the winger.";
+    }
+    if (key === "goalkick") {
+      text = "Goal kick: the centre-backs split to the middle of the line between the 6-yard and 18-yard box corners. The full-backs are level with the 18-yard line but wider. The two holding midfielders and the CM all sit low, well back from the CF. The wingers pinch to where the centre circle meets the halfway line, and the CF drops to the nearest edge of the circle. The kick goes to the CF, who lays it back, and then the team plays it out to the winger.";
+    }
+    if (v.press) {
+      p.press = { holder: mp(v.press.holder), wing: mp(v.press.wing), cm: mp(v.press.cm), from: v.press.from, to: v.press.to, adv: v.press.adv };
+      text = "Pressure: the ball goes down the " + side + " and the " + nm(p.press.holder) + " is pressed (red dot). The " + nm(p.press.wing) +
+        " stays deep and hugs the touchline as a safe outlet, instead of coming inside to where the " + nm(p.press.cm) + " is. He passes to the nearest holding midfielder (" + nm(p.press.cm) +
+        "), then runs forward up the line and is played in again.";
+    }
+    if (key === "counterA" || key === "counterB") {
+      var cdm2 = left ? 8 : 6;
+      var setup = "Counter: a red player has the ball and loses it to the " + winner + ". Our back line starts along the top of the box with the full-backs tucked well inside, and the midfielders start low, but they all move with the ball, and the full-backs push up as options even though they don't get the pass. The strong-side winger (" + nm(strongW) + ") starts tucked in between the centre-back and the full-back, slightly above them, defending, not high. The CF is in his goal-kick spot and the opposite winger (" + nm(oppW) + ") sits slightly lower than his goal-kick position. The red defensive line stays high. The " + winner + " passes to the CF. ";
+      if (key === "counterA") {
+        text = setup + "The CF has time: he receives, turns and plays a lead through ball over the top, past the high red line, into space. The " + nm(oppW) + " runs toward the line, level with it and onside, and only crosses it once the ball is past the line, running onto it from behind the ball, then shoots. The " + nm(strongW) + " expands forward and wide as a passing option.";
+      } else {
+        text = setup + "The CF has no time (red dot is the pressure), so he passes back to the " + nm(cdm2) + ", and at the same time the " + nm(strongW) + " gets wider. The " + nm(cdm2) + " dribbles forward a little and then hits a ball over the top, past the high red line, to the " + nm(strongW) + ". The " + nm(strongW) + " waits level with the line, onside, only crosses it once the ball is past, and runs onto it from behind the ball, then shoots. The CF pushes up.";
+      }
+    }
+    p.locked = [];
+    var lk = function (id) { if (id) p.locked.push(Number(id)); };
+    lk(p.ov); lk(p.tuck); lk(p.opp); lk(p.near);
+    if (p.carry) { lk(p.carry.cb); lk(p.carry.cm); }
+    if (p.press) lk(p.press.wing);
+    if (p.through) lk(p.through.runner);
+    if (p.decoy) lk(10);
+    if (p.cfPush || p.through) lk(9);                // the CF stays in his goal-kick spot in the counter
+    p.text = text;
+    return p;
+  }
+  function refreshPlan() { plan = getPlan(); }
+
+  var canvas = document.getElementById("pitch");
+  var ctx = canvas.getContext("2d");
+  var elPlay = document.getElementById("play"), elNext = document.getElementById("next"), elReplay = document.getElementById("replay");
+  var elSpeed = document.getElementById("speed");
+  var elVar = document.getElementById("variation"), elAttack = document.getElementById("attack");
+  var elStatus = document.getElementById("status"), elLen = document.getElementById("len");
+  var elWid = document.getElementById("wid"), elSide = document.getElementById("side");
+  var elOpts = document.getElementById("opts"), elNote = document.getElementById("note");
+
+  var reduce = false;
+  try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+  var pos = {};
+  var ball = { x: 5, y: 34 };
+  var holder = 1, seqIdx = 0, phase = "hold", t = 0, dwell = 0, from = { x: 5, y: 34 }, passTo = null;
+  var playing = !reduce, free = false, dragging = false, speed = 1, statusText = "", nowT = 0;
+  var presser = { x: 20, y: 34, a: 0 };
+  var redC = { x: 38.5, y: 45, a: 0 }, redT = 0, dribStart = null;
+  var support = { key: "", fid: 1, list: [] };
+  var optsText = "";
+  var cam = { z: 1, cx: CW / 2, cy: CH / 2 };
+  var optT = 0;
+  var lineX = 62, leadPass = false, leadPt = [96, 58], leadDur = 1.5;
+  var elZoom = document.getElementById("zoomx");
+
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+  function ease(u) { return u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; }
+  function lerp2(a, b, u) { return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u]; }
+
+  function inCross(x, y) { return x >= 70 && Math.abs(y - 34) >= 18; }
+  function optionsOn() {
+    if (!plan.options) return false;
+    if (free) return inCross(ball.x, ball.y);
+    return seqIdx >= plan.seq.length - 1 && (phase === "hold" || phase === "end") && inCross(ball.x, ball.y);
+  }
+  function pressActive() {
+    if (!plan || free || phase === "end") return false;
+    if (plan.press && seqIdx >= plan.press.from && seqIdx <= plan.press.to) return true;
+    if (plan.pressCF && seqIdx === 1) return true;
+    return false;
+  }
+
+  function lineBase(x) { return clamp(62 + (x - 40) * 0.5 + ((plan && plan.lineOff) || 0), 62, 90); }
+  // The defensive line steps up with the ball, then drops deep once the lead pass is played into the corner.
+  function lineTarget() {
+    if (plan.lineFixed) return plan.lineFixed;
+    if (!plan.line) return lineBase(ball.x);
+    if (free) return optionsOn() ? plan.drop : lineBase(ball.x);
+    return isReleased() ? plan.drop : lineBase(ball.x);
+  }
+  function updateLine(dt) {
+    lineX += (lineTarget() - lineX) * (1 - Math.exp(-dt * speed * 2.0));
+  }
+  function isReleased() {
+    if (free || !plan || !(plan.options || plan.through)) return false;
+    var len = plan.seq.length - 1;
+    return seqIdx >= len || (seqIdx === len - 1 && (phase === "chase" || (phase === "pass" && t > 0.05)));
+  }
+  function layoutOn() { return !!plan.base && !free && seqIdx < plan.layoutUntil; }
+  function isFrozen(id) {
+    id = String(id);
+    if (free || phase === "chase") return false;     // once the lead pass is played nobody is holding the ball
+    if (phase === "pass") return passTo !== null && String(passTo) === id;
+    return String(holder) === id;
+  }
+  function isHolderFrozen(id) { return !free && phase !== "pass" && phase !== "chase" && String(holder) === String(id); }
+
+  var shapeLock = {};
+  function targets(bp) {
+    shapeLock = {};
+    var useLayout = layoutOn();
+    var sc = useLayout ? plan.scale : 1;
+    var ex = 5 + (bp.x - 5 - (useLayout ? plan.shiftRef : 0)) * sc, ey = 34 + (bp.y - 34) * (useLayout && plan.yShift !== undefined ? plan.yShift : sc), out = {};
+    var B = useLayout ? plan.base : BASE;
+    for (var id in B) {
+      var b = B[id], line = b[2];
+      var wx = (plan.mW !== undefined && (id === "6" || id === "8" || id === "10")) ? plan.mW : (id === "6" || id === "8") ? 0.24 : (id === "10" ? 0.14 : ((line === "D" && plan.dW !== undefined) ? plan.dW : W[line])), wy = (line === "G") ? 0.12 : W.y;
+      out[id] = [clamp(b[0] + wx * (ex - 5), 3, 98), clamp(b[1] + wy * (ey - 34), 3, 65)];
+    }
+    // Far-side holding midfielder stays just across the middle line, still central.
+    if (!useLayout) {
+      var sd = bp.y > 34 ? 1 : -1;
+      var m = clamp((Math.abs(bp.y - 34) - 5) / 12, 0, 1);
+      var far = sd > 0 ? 6 : 8;
+      out[far] = lerp2(out[far], [out[far][0], 34 - sd * 3], m);
+    }
+    // The 9 is a false nine until the team approaches the box, and the 10 takes up a half-space nearby instead of stacking on him.
+    if (!useLayout && (plan.falseNine || free)) {
+      var cs0 = free ? (bp.y > 34 ? 1 : -1) : plan.cs;
+      var fnX = Math.min(clamp(bp.x + 22, 58, 64), lineX - 3);   // not too false: already well up toward their line
+      var pastZone = clamp((bp.x - 40) / 23, 0, 1);              // once the ball is in the final 2/5 of the pitch (about 63 m) he is up against their line
+      var midMax = Math.max(out[6][0], out[8][0], out[10][0]);   // never lower than the CM or the holding midfielders
+      out[9] = [Math.max(46, midMax + 6, fnX + (lineX - 0.5 - fnX) * pastZone), 34 + (bp.y - 34) * 0.25 * (1 - pastZone) - cs0 * 2 * pastZone];
+      var hs = Math.abs(bp.y - 34) < 8 ? cs0 * 9 : clamp((bp.y - 34) * 0.55, -16, 16);
+      hs *= clamp((bp.x - 25) / 25, 0, 1);                       // central between the holding midfielders until the ball comes up the pitch
+      out[10] = [out[10][0], 34 + hs];
+    }
+    // The player on the ball, or about to receive it, stands still instead of moving with the ball.
+    if (!free && phase !== "chase") {
+      var fz = phase === "pass" ? passTo : holder;
+      if (fz !== null && pos[fz]) out[fz] = [pos[fz][0], pos[fz][1]];
+    }
+    return applyPlan(out, bp, ex, ey);
+  }
+
+  function separate(out) {
+    if (layoutOn()) return;
+    if (plan.options && (free ? optionsOn() : seqIdx >= plan.seq.length - 2)) return;   // the crossing set-up has fixed spots
+    [[6, 10, 11], [8, 10, 11], [9, 10, 12]].forEach(function (pr) {
+      var c = pr[0], tg = pr[1], minD = pr[2];
+      var a = out[c], b = out[tg];
+      var dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy);
+      if (d >= minD) return;
+      if (d < 0.01) { dx = 0; dy = 1; d = 1; }
+      var ft = isFrozen(tg), fc = isFrozen(c);
+      if (ft && fc) return;
+      var ux = dx / d, uy = dy / d, push = minD - d;
+      var st = ft ? 0 : (fc ? 1 : 0.5), sc2 = fc ? 0 : (ft ? 1 : 0.5);
+      out[tg] = [clamp(b[0] + ux * push * st, 3, 98), clamp(b[1] + uy * push * st, 3, 65)];
+      out[c] = [clamp(a[0] - ux * push * sc2, 3, 98), clamp(a[1] - uy * push * sc2, 3, 65)];
+    });
+  }
+
+  // Everyone keeps a little room: no two outfield players closer than about 10 m (the player on the ball and the receiver stay put).
+  function spread(out) {
+    if (layoutOn() || plan.through) return;
+    if (plan.options && (free ? optionsOn() : seqIdx >= plan.seq.length - 1)) return;   // the crossing set-up has fixed spots
+    var ids = [];
+    for (var id in out) if (id !== "1") ids.push(id);
+    var minD = 10;
+    for (var it = 0; it < 3; it++) {
+      for (var a = 0; a < ids.length; a++) {
+        for (var b = a + 1; b < ids.length; b++) {
+          var ia = ids[a], ib = ids[b], pa = out[ia], pb = out[ib];
+          var dx = pb[0] - pa[0], dy = pb[1] - pa[1], d = Math.hypot(dx, dy);
+          if (d >= minD) continue;
+          if (d < 0.01) { dx = 0; dy = 1; d = 1; }
+          var fa = isFrozen(ia), fb = isFrozen(ib);
+          if (fa && fb) continue;
+          var wa = fa ? 0 : (plan.locked.indexOf(Number(ia)) >= 0 ? 0.35 : 1), wb = fb ? 0 : (plan.locked.indexOf(Number(ib)) >= 0 ? 0.35 : 1);
+          var tw = wa + wb;
+          if (tw === 0) continue;
+          var push = minD - d, ux = dx / d, uy = dy / d;
+          out[ib] = [clamp(pb[0] + ux * push * wb / tw, 3, 98), clamp(pb[1] + uy * push * wb / tw, 3, 65)];
+          out[ia] = [clamp(pa[0] - ux * push * wa / tw, 3, 98), clamp(pa[1] - uy * push * wa / tw, 3, 65)];
+        }
+      }
+    }
+  }
+
+  function applyPlan(out, bp, ex, ey) {
+    var len = plan.seq.length - 1;
+    var dlv = lineX;
+    var released = isReleased();
+    var cs = free ? (bp.y > 34 ? 1 : -1) : plan.cs;
+    // Nobody in the front three can get higher than the defensive line.
+    if (plan.line) {
+      [7, 9, 11].forEach(function (id) {
+        if (!isFrozen(id)) out[id] = [Math.min(out[id][0], dlv), out[id][1]];
+      });
+    }
+    if (plan.ov) {
+      var sgn = BASE[plan.ov][1] > 34 ? 1 : -1;
+      var onSide = clamp(sgn * (bp.y - 34) / 10, 0, 1);
+      var r = clamp((bp.x - 38) / 22, 0, 1) * onSide;
+      var lastTwo = !free && seqIdx >= len - 1;
+      var cap = Math.min(dlv, lineTarget()) - 2;
+      var o = out[plan.ov];
+      var ovIsRcv = String(plan.ov) === String(plan.seq[len]);
+      var ncId = cs > 0 ? 8 : 6;
+      var nearCdmX = Math.min(out[ncId][0], pos[ncId] ? pos[ncId][0] : out[ncId][0]);   // never ahead of the holding midfielder's target or where he is now
+      // The full-back never goes past the holding midfielder until the final ball (the lead pass into the corner) is played.
+      if (ovIsRcv || !isHolderFrozen(plan.ov)) {
+        var tx, ty = 34 + sgn * 26;
+        if (ovIsRcv) {
+          tx = released ? plan.depth : nearCdmX;
+          if (released) ty = 34 + sgn * 24;
+        } else if (plan.noOverlap) {
+          tx = released ? 82 : (plan.decoy ? (seqIdx >= plan.cmUpFrom ? 74 : nearCdmX) : Math.min(nearCdmX, clamp(bp.x - 10, 26, 58)));   // build-up 2: already high, ahead of the CDMs
+          ty = 34 + sgn * (released ? 30 : (plan.decoy && seqIdx >= plan.cmUpFrom ? 28 : 25));
+        } else {
+          tx = released ? 82 : Math.min(nearCdmX, clamp(bp.x - 10, 26, 58));
+        }
+        out[plan.ov] = lerp2(o, [tx, ty], 1);
+      }
+      // Near winger offers short support, well inside the full-back's lane.
+      if (!isFrozen(plan.tuck)) {
+        var rT = clamp((bp.x - 24) / 14, 0, 1) * onSide;
+        // Near winger supports the strong side lower (level with or just behind the ball) but still wide, leaving the touchline lane for the full-back.
+        out[plan.tuck] = lerp2(out[plan.tuck], [clamp(bp.x - 2, 36, Math.min(dlv, 92)), 34 + sgn * 17], rT);
+      }
+      out[plan.opp] = lerp2(out[plan.opp], [out[plan.opp][0], 34 - sgn * 14], r * 0.7);
+    }
+    // When the ball-side holding midfielder has the ball in the build-up: the winger is wide where the halfway line meets the sideline,
+    // the full-back is a diagonal back pass lower down, the near centre-back gives him space, and the far holding midfielder is a little wider.
+    if (plan.ov && !free && !layoutOn() && !released) {
+      var fcs = (phase === "pass" && t > 0.45) ? passTo : holder;
+      var nearC2 = cs > 0 ? 8 : 6, farC2 = cs > 0 ? 6 : 8, ncb = cs > 0 ? 5 : 4;
+      if (String(fcs) === String(nearC2) && pos[fcs]) {
+        var hpc = pos[fcs];
+        out[plan.tuck] = [52.5, 34 + cs * 29];
+        out[plan.ov] = [clamp(hpc[0] - 12, 24, 40), 34 + cs * 25];
+        out[ncb] = [clamp(hpc[0] - 16, 18, 34), 34 + cs * 4];
+        out[farC2] = [out[farC2][0], 34 - cs * 8];
+        shapeLock[plan.tuck] = shapeLock[plan.ov] = shapeLock[ncb] = shapeLock[farC2] = true;
+      } else if (String(fcs) === "10" && pos[fcs]) {
+        // CM on the ball: the winger is already wide on the sideline and the full-back is close to him, ready to receive.
+        var hpm = pos[fcs];
+        out[plan.tuck] = [clamp(hpm[0] + 6, 52, Math.min(dlv, 72)), 34 + cs * 29];
+        out[plan.ov] = [Math.min(clamp(hpm[0] - 2, 40, 64), out[nearC2][0]), 34 + cs * 22];
+        shapeLock[plan.tuck] = shapeLock[plan.ov] = true;
+      }
+    }
+    if (plan.carry) {
+      var cb = plan.carry.cb, cm = plan.carry.cm;
+      var c = (!free && seqIdx >= 1) ? 1 : 0;
+      var dwt = plan.dW !== undefined ? plan.dW : W.D;
+      var slot = [clamp(BASE[cb][0] + dwt * (ex - 5), 3, 98), clamp(BASE[cb][1] + W.y * (ey - 34), 3, 65)];
+      out[cb] = lerp2(out[cb], [50, 34 + (BASE[cb][1] - 34) * 0.5], c);
+      out[cm] = lerp2(out[cm], [slot[0] + 1, slot[1]], c);
+      // Space to carry into: the CM stays lower, level with the holding midfielders, and the CF stays high on the defensive line.
+      var cmMove = (!free && seqIdx === 1) ? 1 : 0;
+      out[10] = lerp2(out[10], [clamp(bp.x - 6, 34, 46), 34 - cs * 3], cmMove);
+      out[9] = lerp2(out[9], [dlv - 2, 34 - cs * 2], c);
+      var farW = cs > 0 ? 7 : 11;
+      out[farW] = [out[farW][0], 34 - cs * 27];                  // the far winger stays wide
+    }
+    if (plan.through && !free) {
+      var rn = plan.through.runner;
+      var bpast = phase === "chase" || seqIdx >= len || (phase === "pass" && leadPass && ball.x > lineX + 3);
+      if (seqIdx < 1) out[rn] = [plan.base[rn][0], plan.base[rn][1]];
+      else if (!bpast) out[rn] = [lineX - 1.5, plan.through.runY];                  // runs toward the line, level with it and onside
+      else out[rn] = [phase === "pass" ? Math.min(leadPt[0], ball.x - 1.5) : leadPt[0], leadPt[1]];   // crosses the line only once the ball is past it, behind the ball
+    }
+    if (plan.near && !free && seqIdx >= 1 && !isHolderFrozen(plan.near)) {
+      var sn = BASE[plan.near][1] > 34 ? 1 : -1;
+      out[plan.near] = [58, 34 + sn * 29];   // near winger expands forward and wide as a passing option
+    }
+    if (plan.through && !free && seqIdx >= 1) {
+      // The full-backs move up their flanks so they are passing options, even though they don't get the ball.
+      [3, 2].forEach(function (fid) {
+        if (!isFrozen(fid)) out[fid] = [clamp(plan.base[fid][0] + 0.55 * (bp.x - 31), 19, 40), plan.base[fid][1]];
+      });
+    }
+    if (plan.dribble && !free && seqIdx === plan.dribble.idx - 1) {
+      // The back-pass receiver is already behind the CF, ready to take it and dribble forward.
+      var rbk = plan.seq[plan.dribble.idx];
+      out[rbk] = [33, plan.base[rbk][1]];
+      shapeLock[rbk] = true;
+    }
+    if (plan.dribble && !free && seqIdx === plan.dribble.idx && phase === "hold" && dribStart) {
+      out[holder] = [dribStart[0] + plan.dribble.dx, dribStart[1]];       // dribbles forward a little before playing it over the top
+    }
+    if (plan.cfPush && !free && seqIdx >= 2) out[9] = [Math.min(bp.x + 22, lineX - 1.5), 34];
+    if (plan.press && !free) {
+      var pr = plan.press, w = pr.wing, sg = BASE[w][1] > 34 ? 1 : -1, wy = 34 + sg * 29;
+      if (!isHolderFrozen(w)) {
+        if (seqIdx >= pr.from && seqIdx <= pr.to) {
+          out[w] = [out[pr.holder][0] + 7, wy];
+        } else if (seqIdx >= pr.adv) {
+          out[w] = [released ? 96 : Math.min(out[pr.cm][0] + 14, 90, dlv - 1.5), 34 + sg * 24];
+        }
+      }
+    }
+    if (plan.options) {
+      var rel = free ? clamp((bp.x - 62) / 10, 0, 1) * clamp((Math.abs(bp.y - 34) - 10) / 8, 0, 1) : (released ? 1 : 0);
+      var pre = free ? rel : ((seqIdx >= len - 1) ? 1 : 0);
+      var fw = cs > 0 ? 7 : 11, farC = cs > 0 ? 6 : 8, nearC = cs > 0 ? 8 : 6, oppFB = cs > 0 ? 3 : 2;
+      // The lead pass receiver waits on the line, then runs onto the ball in the corner.
+      var rcvId = plan.seq[len];
+      var ovHandlesRcv = plan.ov && String(plan.ov) === String(rcvId);
+      var cornerX = plan.ov ? plan.depth : 96;
+      if (!plan.press && !free && !ovHandlesRcv && seqIdx >= len - 1) {
+        var preY = plan.rcvPreOff !== undefined ? 34 + cs * plan.rcvPreOff : (plan.ov ? 34 + cs * (plan.noOverlap ? 29 : 20) : 34 + cs * 24);
+        out[rcvId] = released ? [cornerX, 34 + cs * 24] : [Math.min(cornerX, dlv - 1.5), preY];
+      }
+      // The player who plays the lead pass is already well up the pitch, about 27 to 39 yards from goal, when he gets the ball.
+      if (plan.decoy && !free && !released) {
+        // The CM is already around the 18, level with the deep defensive line, well before the final ball.
+        if (seqIdx >= plan.cmUpFrom && String(rcvId) === "10") out[10] = [86, 34 + cs * 6];
+        // The CF is already up in the offensive area, so the ball is in possession there before it cycles to the full-back.
+        if (seqIdx >= plan.cmUpFrom && seqIdx < len - 1 && !isFrozen(9)) out[9] = [dlv - 0.5, 34 - cs * 2];   // up against the defensive line
+        // The near winger makes a decoy run toward goal and does not get the pass.
+        if (seqIdx >= len - 2 && !isFrozen(plan.tuck)) out[plan.tuck] = [Math.min(88.5, dlv - 1.5), 34 + cs * 14];
+      }
+      if (!free && seqIdx >= len - 2 && !released) {
+        var psId = plan.seq[len - 1];
+        var psY = String(psId) === String(plan.ov) ? 34 + cs * (plan.decoy ? 28 : (plan.noOverlap ? 20 : 30)) : (String(psId) === String(plan.tuck) ? 34 + cs * 17 : (String(psId) === "10" ? 34 + cs * 10 : 34 + cs * 2));
+        out[psId] = [Math.min(String(psId) === "10" ? 72 : 74, dlv - 1.5), psY];
+      }
+      var stage = function (id, preSpot, spot) {
+        if (isFrozen(id)) return;
+        out[id] = lerp2(lerp2(out[id], preSpot, pre), spot, rel);
+      };
+      // Before the lead pass everyone is on or behind the line. After it, the line drops and they attack the box.
+      stage(plan.cbRcvId, [Math.min(88.5, dlv - 1.5), 34 + cs * (plan.decoy ? 14 : 6)], [88.5, 34 + cs * 6]);   // on the 18 for the cut-back
+      stage(farC, [Math.min(85.5, dlv - 1.5), 34 - cs * 7.5], [85.5, 34 - cs * 7.5]);       // far CDM near the top of the 18
+      stage(9, [dlv - 0.5, 34 - cs * 2], [101.5, 34 + cs * 2.5]);                             // false nine becomes the CF at the near post
+      stage(fw, [dlv - 0.5, 34 - cs * 27], [99.5, 34 - cs * 5.5]);                             // far winger: high and wide, then the far post
+      // The player who did not run into the corner drops back along the touchline as the straight pass-back option.
+      var bo = plan.backOpt === "ov" ? plan.ov : (plan.backOpt === "tuck" ? plan.tuck : 0);
+      if (bo && !free && released && !isHolderFrozen(bo)) out[bo] = [82, 34 + cs * (plan.backOpt === "ov" ? 30 : 23)];
+      // Opposite full-back pinches in, centrally and closer to the action.
+      var rp = Math.max(clamp((bp.x - 66) / 16, 0, 1), rel);
+      out[oppFB] = lerp2(out[oppFB], [74, 34 - cs * 8], rp);
+      // Ball-side holding midfielder stays back until the pass into the corner is played, then supports right away.
+      out[nearC] = lerp2([Math.min(out[nearC][0], 62), out[nearC][1]], [76, 34 + cs * 10], rel);   // stays back until the pass, then comes up to support right away
+    }
+    applySupport(out);
+    separate(out);
+    spread(out);
+    return out;
+  }
+
+  // ---- Pass options for the ball carrier: a safe back pass, plus a left and a right option ----
+  function computeSupport(fid, fi, out) {
+    var hp = pos[fid], hx = hp[0], hy = hp[1];
+    var locked = plan.locked || [];
+    var dsign = Math.abs(hy - 34) > 6 ? (hy > 34 ? -1 : 1) : 0;   // toward the middle of the pitch
+    var inSign = dsign || (plan.cs || 1);                          // the near option is on the inside (or the ball side when central)
+    function spotOf(role) {
+      if (role === "back") return [hx - ((fid === 6 || fid === 8 || fid === "6" || fid === "8") ? 13 : 9), hy + dsign * 4];
+      var sg = role === "left" ? -1 : 1;                           // left is the top of the screen
+      var nearOpt = sg === inSign;
+      var sy = hy + sg * (nearOpt ? 10 : 18), sx = hx + (nearOpt ? 2 : 6);
+      if (sy < 5 || sy > 63) { sy = clamp(sy, 5, 63); if (Math.abs(sy - hy) < 9) sx = hx + 12; }
+      return [sx, sy];
+    }
+    var roles = fid === 1 ? ["left", "right"] : ["back", "left", "right"];
+    var taken = {}; taken[fid] = true;
+    var res = [];
+    // When the ball-side holding midfielder has it in the build-up, the full-back is his diagonal back pass.
+    var forcedBack = (plan.ov && !free && String(fid) === String(plan.cs > 0 ? 8 : 6)) ? String(plan.ov) : null;
+    roles.forEach(function (role) {
+      var sp = spotOf(role), best = null;
+      if (role === "back" && forcedBack && !taken[forcedBack]) best = forcedBack;
+      var cbBack = (String(fid) === "4" || String(fid) === "5") ? (String(fid) === "4" ? "5" : "4") : null;
+      if (role === "back" && cbBack && !taken[cbBack] && out[cbBack]) {
+        // A centre-back on the ball always has the other centre-back as a back pass option, just behind him.
+        taken[cbBack] = true;
+        res.push({ id: cbBack, role: "back", dx: -4, dy: out[cbBack][1] - hy });
+        return;
+      }
+      for (var pass = 0; pass < 2 && !best; pass++) {
+        var bd = 1e9;
+        for (var id in out) {
+          if (taken[id]) continue;
+          var px = out[id][0];
+          if (id === "1" && !(role === "back" && hx < 32)) continue;
+          if (pass === 0) {
+            if (role === "back" && px > hx - 2) continue;
+            if (role !== "back" && px < hx - 7) continue;
+          }
+          var dd = Math.hypot(out[id][0] - sp[0], out[id][1] - sp[1]);
+          if (locked.indexOf(Number(id)) >= 0) dd += 4;     // prefer players who are free to move
+          if (dd < bd) { bd = dd; best = id; }
+        }
+      }
+      if (best) { taken[best] = true; res.push({ id: best, role: role, dx: sp[0] - hx, dy: sp[1] - hy }); }
+    });
+    // In the passing sequences, the next receiver is always one of the options.
+    var nx = plan.seq[fi + 1];
+    if (!free && nx !== undefined && out[nx] && !res.some(function (r) { return String(r.id) === String(nx); }) &&
+        Math.hypot(out[nx][0] - hx, out[nx][1] - hy) < 26) {
+      var bi = -1, bdd = 1e9;
+      res.forEach(function (r, i) {
+        if (r.role === "back") return;
+        var d2 = Math.hypot(out[nx][0] - (hx + r.dx), out[nx][1] - (hy + r.dy));
+        if (d2 < bdd) { bdd = d2; bi = i; }
+      });
+      if (out[nx][0] < hx - 2) {
+        // The next receiver is behind the carrier (a pass back), so he is the safe back option.
+        var bk = -1;
+        res.forEach(function (r, i) { if (r.role === "back") bk = i; });
+        var spb = spotOf("back");
+        var ent = { id: String(nx), role: "back", dx: spb[0] - hx, dy: spb[1] - hy };
+        if (bk >= 0) res[bk] = ent; else if (bi >= 0) res[bi] = ent;
+      } else if (bi >= 0) res[bi] = { id: String(nx), role: res[bi].role, dx: res[bi].dx, dy: res[bi].dy };
+    }
+    return res;
+  }
+  function setOptsText(list) {
+    var hp = pos[support.fid];
+    var parts = [];
+    [["back", "safe back"], ["left", "left"], ["right", "right"]].forEach(function (rr) {
+      list.forEach(function (r) {
+        if (r.role !== rr[0]) return;
+        var d = (hp && pos[r.id]) ? Math.hypot(pos[r.id][0] - hp[0], pos[r.id][1] - hp[1]) : 0;
+        parts.push(rr[1] + " " + nm(r.id) + (r.role === "back" ? "" : " (" + (d < 15 ? "near" : (d < 28 ? "medium" : "long")) + ")"));
+      });
+    });
+    var s = parts.length ? parts.join(", ") : "none";
+    if (s !== optsText) { optsText = s; elOpts.textContent = s; }
+  }
+  function supportActive() {
+    if (optionsOn() || isReleased()) return false;
+    if (!free) {
+      var len = plan.seq.length - 1;
+      if (plan.shot && seqIdx >= len) return false;
+      if (phase === "end" || phase === "shot" || phase === "redball" || phase === "won") return false;
+    }
+    return true;
+  }
+  function applySupport(out) {
+    if (!pos[holder] || !supportActive()) { support.list = []; support.key = ""; setOptsText([]); return; }
+    var fid, fi;
+    if (free) {
+      var cur = support.fid;
+      if (!(support.key.indexOf("|free") > 0 && pos[cur] && Math.hypot(pos[cur][0] - ball.x, pos[cur][1] - ball.y) < 7)) {
+        var bd = 1e9; cur = holder;
+        for (var q in pos) {
+          var dd = Math.hypot(pos[q][0] - ball.x, pos[q][1] - ball.y);
+          if (dd < bd) { bd = dd; cur = q; }
+        }
+      }
+      fid = cur; fi = 0;
+    } else {
+      var passing = (phase === "pass" && t > 0.45);
+      fid = passing ? passTo : holder; fi = passing ? seqIdx + 1 : seqIdx;
+    }
+    var key = fid + "|" + fi + "|" + side + (free ? "|free" : "");
+    if (key !== support.key) { support.key = key; support.list = computeSupport(fid, fi, out); setOptsText(support.list); }
+    support.fid = fid;
+    setOptsText(support.list);
+    var crossSetup = !free && plan.options && seqIdx >= plan.seq.length - 2;
+    if ((layoutOn() && !plan.through) || crossSetup) return;         // set plays and the crossing set-up are fixed: show the options, do not move anyone
+    var hp = pos[fid];
+    support.list.forEach(function (r) {
+      if (plan.locked.indexOf(Number(r.id)) >= 0 || shapeLock[r.id] || String(r.id) === "7" || String(r.id) === "11" || (String(r.id) === "9" && !plan.through)) return;   // wingers stay wide, the CF is never pulled back below the midfield
+      var spot = [clamp(hp[0] + r.dx, 3, 100), clamp(hp[1] + r.dy, 4, 64)];
+      // The back four are never pulled far up the pitch to create an option.
+      if (/^[2-5]$/.test(String(r.id))) spot[0] = Math.min(spot[0], out[r.id][0] + 4);
+      // The holding midfielders and the CM are not dragged far back into the back line to create an option.
+      if (/^(6|8|10)$/.test(String(r.id))) spot[0] = Math.max(spot[0], out[r.id][0] - 5);
+      out[r.id] = lerp2(out[r.id], spot, 0.65);
+    });
+  }
+
+  function initPositions() {
+    var tg = targets({ x: 5, y: 34 });
+    for (var id in tg) pos[id] = [tg[id][0], tg[id][1]];
+  }
+
+  function snapShape() {
+    support.key = "";
+    for (var n = 0; n < 3; n++) {
+      var tg = targets(ball);
+      for (var id in tg) pos[id] = [tg[id][0], tg[id][1]];
+      ball.x = pos[holder][0]; ball.y = pos[holder][1];
+    }
+    support.key = "";
+  }
+  function restartSequence(flip) {
+    if (flip) {
+      var changed = false;
+      if (variation === "buildAll") {
+        buildStep = (buildStep + 1) % 3; changed = true;
+        if (attack === "both" && buildStep === 0) side = side === "right" ? "left" : "right";
+      } else if (attack === "both") {
+        side = side === "right" ? "left" : "right"; changed = true;
+      }
+      if (changed) { refreshPlan(); renderNote(); }
+    }
+    seqIdx = 0; holder = plan.seq[0]; phase = "hold"; dwell = 0; t = 0; free = false;
+    if (plan.snap && plan.base) {
+      for (var sid in plan.base) pos[sid] = [plan.base[sid][0], plan.base[sid][1]];
+    }
+    ball.x = pos[holder][0]; ball.y = pos[holder][1];
+    presser.a = 0; support.key = ""; leadPass = false;
+    lineX = plan.lineFixed || lineBase(ball.x);
+    snapShape();
+    if (plan.reds) {                       // a red player has the ball, then loses it to the blue player who hits the CF
+      phase = "redball"; redT = 0;
+      redC.x = plan.redStart[0]; redC.y = plan.redStart[1]; redC.a = 1;
+      ball.x = redC.x; ball.y = redC.y;
+    } else redC.a = 0;
+  }
+
+  function startPass() {
+    var seq = plan.seq;
+    from = { x: ball.x, y: ball.y };
+    t = 0;
+    if (seqIdx + 1 < seq.length) {
+      phase = "pass"; passTo = seq[seqIdx + 1];
+      leadPass = !!(plan.options || plan.through) && (seqIdx + 1 === seq.length - 1);
+      if (leadPass) {
+        leadPt = plan.through ? [plan.through.pt[0], plan.through.pt[1]] : [plan.ov ? plan.depth : 96, 34 + plan.cs * 24];
+        leadDur = Math.max(plan.leadT, Math.hypot(leadPt[0] - ball.x, leadPt[1] - ball.y) / 20);   // a longer ball takes longer
+      }
+    }
+    else if (plan.shot) { phase = "shot"; passTo = null; }
+    else { phase = "end"; dwell = 0; passTo = null; }
+  }
+
+  function setStatus(s) { if (s !== statusText) { statusText = s; elStatus.textContent = s; } }
+
+  function updateSequence(dt) {
+    var seq = plan.seq;
+    if (free) { setStatus("Coach mode: drag the ball"); return; }
+    if (!playing) {
+      if (phase === "hold" || phase === "end") { ball.x = pos[holder][0]; ball.y = pos[holder][1]; }
+      if (phase === "redball") { ball.x = redC.x; ball.y = redC.y; }
+      return;
+    }
+    dt *= speed;
+    var last = seq.length - 1;
+    if (phase === "redball") {
+      ball.x = redC.x; ball.y = redC.y;
+      redT += dt;
+      setStatus("A red player has the ball");
+      if (redT > 1.8) { phase = "won"; redT = 0; from = { x: ball.x, y: ball.y }; }
+    } else if (phase === "won") {
+      redT += dt / 0.7;
+      var ew = ease(Math.min(redT, 1));
+      ball.x = from.x + (pos[holder][0] - from.x) * ew;
+      ball.y = from.y + (pos[holder][1] - from.y) * ew;
+      redC.a = 1 - ew; redC.x -= dt * 3;           // the red player loses it and backs away
+      setStatus("The " + nm(holder) + " wins the ball");
+      if (redT >= 1) { phase = "hold"; dwell = 0; redC.a = 0; }
+    } else if (phase === "hold") {
+      if (dwell === 0) dribStart = [pos[holder][0], pos[holder][1]];
+      ball.x = pos[holder][0]; ball.y = pos[holder][1];
+      dwell += dt;
+      if (seqIdx === last && plan.options) { var ao = activeOpt(); setStatus(ao >= 0 ? "Option " + (ao + 1) + " of 3: " + OPT_DEFS[ao].desc : "Getting into position..."); }
+      else setStatus(seqIdx === 0 ? (plan.key === "goalkick" ? "Goal kick" : (plan.key.indexOf("counter") === 0 ? "Ball won by the " + nm(seq[0]) : "Goalkeeper starts")) : "Pass " + seqIdx + " of " + last + ": " + nm(seq[seqIdx - 1]) + " to " + nm(seq[seqIdx]));
+      var need = plan.hold[seqIdx] || DWELL;
+      // In the build-up, wait until all three options have been shown, each with its receiver in place.
+      var holdOpts = plan.options && seqIdx === last && !optsDone() && dwell < 25;
+      if (dwell > need && !holdOpts) { dwell = 0; startPass(); }
+    } else if (phase === "pass") {
+      t += dt / (leadPass ? leadDur : PASS_T);
+      var u = Math.min(t, 1);
+      var e = leadPass ? 1 - Math.pow(1 - u, 2) : ease(u);
+      var tg = leadPass ? { 0: leadPt[0], 1: leadPt[1] } : pos[passTo];
+      ball.x = from.x + (tg[0] - from.x) * e;
+      ball.y = from.y + (tg[1] - from.y) * e;
+      setStatus(leadPass ? (plan.through ? "Lead through ball: " + nm(holder) + " plays it into space ahead of the " + nm(passTo) : "Lead pass into the corner: " + nm(holder) + " plays it ahead of the " + nm(passTo)) : "Pass " + (seqIdx + 1) + " of " + last + ": " + nm(holder) + " to " + nm(passTo));
+      if (t >= 1) {
+        if (leadPass) { phase = "chase"; dwell = 0; }
+        else { seqIdx++; holder = passTo; phase = "hold"; dwell = 0; }
+      }
+    } else if (phase === "chase") {
+      dwell += dt;
+      ball.x = leadPt[0]; ball.y = leadPt[1];
+      setStatus("The " + nm(passTo) + " catches up to the ball");
+      var pp = pos[passTo];
+      if (Math.hypot(pp[0] - leadPt[0], pp[1] - leadPt[1]) < 1.8 || dwell > 9) {
+        seqIdx++; holder = passTo; phase = "hold"; dwell = 0; leadPass = false;
+      }
+    } else if (phase === "shot") {
+      t += dt / 1.2;
+      var e2 = ease(Math.min(t, 1));
+      ball.x = from.x + (PW + 1.2 - from.x) * e2;
+      ball.y = from.y + (34 - from.y) * e2;
+      setStatus("Shot by the " + nm(holder));
+      if (t >= 1) { phase = "end"; dwell = 0; }
+    } else if (phase === "end") {
+      dwell += dt;
+      if (!plan.shot) { ball.x = pos[holder][0]; ball.y = pos[holder][1]; }
+      setStatus(plan.options ? "Crossing area: cut-back, low cross or far-post cross" : (plan.shot ? "Goal. Restarting..." : "Shape set. Restarting..."));
+      if (dwell > 1.2) restartSequence(true);
+    }
+  }
+
+  function updatePlayers(dt) {
+    var tg = targets(ball);
+    var sdt = dt * speed;
+    var k = 1 - Math.exp(-sdt * 2.2 * (dragging ? 1.8 : 1));
+    var len = plan.seq.length - 1;
+    var rcv = (plan.options || plan.through) ? String(plan.seq[len]) : "";
+    var rel = isReleased();
+    for (var id in tg) {
+      var p = pos[id];
+      var dx = (tg[id][0] - p[0]) * k, dy = (tg[id][1] - p[1]) * k;
+      // Players run at a realistic top speed; the player chasing the lead pass is slower than the ball.
+      var vmax = dragging || free ? 14 : ((id === rcv && rel) ? plan.runV : ((plan.options && rel) ? 10.5 : 9));
+      var step = Math.hypot(dx, dy), lim = vmax * sdt;
+      if (step > lim) { dx *= lim / step; dy *= lim / step; }
+      p[0] += dx; p[1] += dy;
+    }
+    // Personal space: while players move, no two outfield players are allowed closer than 8 m (the player on the ball stays put).
+    if (!free && !dragging && (!layoutOn() || plan.through)) {
+      var ids = [];
+      for (var q in pos) if (q !== "1") ids.push(q);
+      for (var it = 0; it < 2; it++) {
+        for (var a = 0; a < ids.length; a++) {
+          for (var b = a + 1; b < ids.length; b++) {
+            var pa = pos[ids[a]], pb = pos[ids[b]];
+            var ex = pb[0] - pa[0], ey = pb[1] - pa[1], dd = Math.hypot(ex, ey);
+            if (dd >= 8) continue;
+            if (dd < 0.01) { ex = 0; ey = 1; dd = 1; }
+            var fa = isFrozen(ids[a]), fb = isFrozen(ids[b]);
+            if (fa && fb) continue;
+            var sh = (8 - dd), wa2 = fa ? 0 : (fb ? 1 : 0.5), wb2 = fb ? 0 : (fa ? 1 : 0.5);
+            pb[0] = clamp(pb[0] + ex / dd * sh * wb2, 3, 102); pb[1] = clamp(pb[1] + ey / dd * sh * wb2, 3, 65);
+            pa[0] = clamp(pa[0] - ex / dd * sh * wa2, 3, 102); pa[1] = clamp(pa[1] - ey / dd * sh * wa2, 3, 65);
+          }
+        }
+      }
+    }
+  }
+
+  function updatePresser(dt) {
+    if (pressActive()) {
+      var sg = ball.y > 34 ? 1 : -1;
+      var tx = ball.x + 3.8, ty = ball.y - sg * 2.4;
+      if (presser.a < 0.03) { presser.x = tx + 10; presser.y = ty - sg * 6; }
+      var k = 1 - Math.exp(-dt * 3.5);
+      presser.x += (tx - presser.x) * k;
+      presser.y += (ty - presser.y) * k;
+      presser.a = Math.min(1, presser.a + dt * 3);
+    } else {
+      presser.a = Math.max(0, presser.a - dt * 3);
+    }
+  }
+
+  // ---- Drawing ----
+  function X(x) { return PAD + x * S; }
+  function Y(y) { return PAD + y * S; }
+  function line(x1, y1, x2, y2) { ctx.beginPath(); ctx.moveTo(X(x1), Y(y1)); ctx.lineTo(X(x2), Y(y2)); ctx.stroke(); }
+  function circle(x, y, r) { ctx.beginPath(); ctx.arc(X(x), Y(y), r * S, 0, Math.PI * 2); ctx.stroke(); }
+  function dot(x, y, r) { ctx.beginPath(); ctx.arc(X(x), Y(y), r * S, 0, Math.PI * 2); ctx.fill(); }
+
+  function drawPitch() {
+    ctx.fillStyle = "#2f7a3a";
+    ctx.fillRect(0, 0, CW, CH);
+    var stripes = 15, sw = PW / stripes;
+    for (var i = 0; i < stripes; i++) {
+      ctx.fillStyle = i % 2 ? "#348240" : "#2c7336";
+      ctx.fillRect(X(i * sw), Y(0), sw * S + 1, PH * S);
+    }
+    ctx.strokeStyle = "rgba(255,255,255,.75)";
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(X(0), Y(0), PW * S, PH * S);
+    line(PW / 2, 0, PW / 2, PH);
+    circle(PW / 2, PH / 2, 9.15);
+    ctx.fillStyle = "rgba(255,255,255,.8)";
+    dot(PW / 2, PH / 2, 0.4);
+    ctx.strokeRect(X(0), Y(13.84), 16.5 * S, 40.32 * S);
+    ctx.strokeRect(X(0), Y(24.84), 5.5 * S, 18.32 * S);
+    ctx.strokeRect(X(PW - 16.5), Y(13.84), 16.5 * S, 40.32 * S);
+    ctx.strokeRect(X(PW - 5.5), Y(24.84), 5.5 * S, 18.32 * S);
+    dot(11, 34, 0.35); dot(PW - 11, 34, 0.35);
+    var a = Math.acos(5.5 / 9.15);
+    ctx.beginPath(); ctx.arc(X(11), Y(34), 9.15 * S, -a, a); ctx.stroke();
+    ctx.beginPath(); ctx.arc(X(PW - 11), Y(34), 9.15 * S, Math.PI - a, Math.PI + a); ctx.stroke();
+    ctx.fillStyle = "rgba(255,255,255,.35)";
+    ctx.fillRect(X(-2), Y(30.34), 2 * S, 7.32 * S);
+    ctx.fillRect(X(PW), Y(30.34), 2 * S, 7.32 * S);
+  }
+
+  function drawSupport() {
+    if (!support.list.length || optionsOn()) return;
+    var hp = pos[support.fid];
+    if (!hp) return;
+    ctx.save();
+    ctx.setLineDash([12, 9]);
+    ctx.lineWidth = 4;
+    ctx.globalAlpha = 0.92;
+    support.list.forEach(function (r) {
+      var p = pos[r.id];
+      ctx.strokeStyle = r.role === "back" ? "#ffd54a" : "#ffffff";
+      ctx.beginPath(); ctx.moveTo(X(hp[0]), Y(hp[1])); ctx.lineTo(X(p[0]), Y(p[1])); ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  function drawOptLine() {
+    if (!plan.optLine || !plan.near || free || phase !== "hold") return;
+    var len = plan.seq.length - 1;
+    if (seqIdx < 1 || seqIdx >= len) return;
+    var hp = pos[holder], np = pos[plan.near];
+    ctx.save();
+    ctx.setLineDash([12, 9]); ctx.lineWidth = 4; ctx.strokeStyle = "#ffffff"; ctx.globalAlpha = 0.92;
+    ctx.beginPath(); ctx.moveTo(X(hp[0]), Y(hp[1])); ctx.lineTo(X(np[0]), Y(np[1])); ctx.stroke();
+    ctx.restore();
+  }
+
+  var OPT_DEFS = [
+    { id: 9, label: "Low cross", desc: "Low cross to the CF at the near post", color: "#4fd8ff", curve: 0 },
+    { id: 0, label: "Far-post cross", desc: "Far-post cross to the opposite winger at the far post", color: "#ff7ad9", curve: 1 },
+    { id: 10, key: "cut", label: "Cut-back", desc: "Cut-back to the player on the 18", color: "#ffd54a", curve: 0 }
+  ];
+  var OPT_SECS = 2.0;
+  var optStep = 0;
+  function optCs() { return free ? (ball.y > 34 ? 1 : -1) : plan.cs; }
+  // An option only lights up once its receiver is actually in position.
+  function optReady(i) {
+    var cs = optCs();
+    var id = i === 0 ? 9 : (i === 1 ? (cs > 0 ? 7 : 11) : plan.cbRcvId);
+    var spot = i === 0 ? [101.5, 34 + cs * 2.5] : (i === 1 ? [99.5, 34 - cs * 5.5] : [88.5, 34 + cs * 6]);
+    return !!pos[id] && Math.hypot(pos[id][0] - spot[0], pos[id][1] - spot[1]) < 3.5;
+  }
+  function activeOpt() { return optReady(optStep) ? optStep : -1; }
+  function optsDone() { return optStep === 2 && optT >= OPT_SECS; }
+
+  function optionGeom(d) {
+    var cs = free ? (ball.y > 34 ? 1 : -1) : plan.cs;
+    var id = d.key === "cut" ? plan.cbRcvId : (d.id || (cs > 0 ? 7 : 11));
+    var x1 = X(ball.x), y1 = Y(ball.y), x2 = X(pos[id][0]), y2 = Y(pos[id][1]);
+    var dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+    var ux = dx / L, uy = dy / L;
+    var ex = x2 - ux * 34, ey = y2 - uy * 34;
+    var sx = x1 + ux * 14, sy = y1 + uy * 14;
+    var cx = (sx + ex) / 2, cy = (sy + ey) / 2;
+    if (d.curve) {
+      var px = -uy, py = ux;
+      if (px < 0) { px = -px; py = -py; }
+      cx += px * L * 0.28; cy += py * L * 0.28;
+    }
+    return { sx: sx, sy: sy, ex: ex, ey: ey, cx: cx, cy: cy };
+  }
+  function drawOptionLines() {
+    if (!optionsOn()) return;
+    var act = activeOpt();
+    var pulse = 0.88 + 0.12 * Math.sin(nowT / 220);
+    ctx.save();
+    ctx.lineCap = "round";
+    OPT_DEFS.forEach(function (d, i) {
+      var g = optionGeom(d), on = i === act;
+      ctx.globalAlpha = on ? pulse : 0.18;
+      ctx.lineWidth = on ? 9 : 4;
+      ctx.setLineDash([18, 12]);
+      ctx.strokeStyle = d.color;
+      ctx.beginPath(); ctx.moveTo(g.sx, g.sy);
+      if (d.curve) ctx.quadraticCurveTo(g.cx, g.cy, g.ex, g.ey); else ctx.lineTo(g.ex, g.ey);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      var ang = Math.atan2(g.ey - (d.curve ? g.cy : g.sy), g.ex - (d.curve ? g.cx : g.sx));
+      var hs = on ? 22 : 13;
+      ctx.fillStyle = d.color;
+      ctx.beginPath();
+      ctx.moveTo(g.ex + Math.cos(ang) * hs, g.ey + Math.sin(ang) * hs);
+      ctx.lineTo(g.ex + Math.cos(ang + 2.5) * hs * 1.1, g.ey + Math.sin(ang + 2.5) * hs * 1.1);
+      ctx.lineTo(g.ex + Math.cos(ang - 2.5) * hs * 1.1, g.ey + Math.sin(ang - 2.5) * hs * 1.1);
+      ctx.closePath(); ctx.fill();
+    });
+    ctx.restore();
+  }
+  function drawOptionLabels() {
+    if (!optionsOn()) return;
+    var ao = activeOpt();
+    if (ao < 0) return;
+    var d = OPT_DEFS[ao], g = optionGeom(d);
+    var lx, ly;
+    if (d.curve) { lx = 0.25 * g.sx + 0.5 * g.cx + 0.25 * g.ex; ly = 0.25 * g.sy + 0.5 * g.cy + 0.25 * g.ey; }
+    else { lx = (g.sx + g.ex) / 2; ly = (g.sy + g.ey) / 2; }
+    ly -= 24;
+    ctx.save();
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.font = "700 36px Barlow, Arial, sans-serif";
+    ctx.lineJoin = "round"; ctx.lineWidth = 7; ctx.strokeStyle = "rgba(0,0,0,.88)";
+    ctx.strokeText(d.label, lx, ly);
+    ctx.fillStyle = d.color; ctx.fillText(d.label, lx, ly);
+    ctx.restore();
+  }
+
+  function drawDefLine() {
+    if (!plan.line) return;
+    var x = X(lineX);
+    ctx.save();
+    ctx.strokeStyle = "#ff9d9d"; ctx.lineWidth = 4; ctx.setLineDash([16, 12]); ctx.globalAlpha = 0.95;
+    ctx.beginPath(); ctx.moveTo(x, Y(0)); ctx.lineTo(x, Y(PH)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.font = "700 24px Barlow, Arial, sans-serif";
+    ctx.lineJoin = "round"; ctx.lineWidth = 5; ctx.strokeStyle = "rgba(0,0,0,.85)";
+    ctx.strokeText("Defensive line", x, Y(3));
+    ctx.fillStyle = "#ffd0d0"; ctx.fillText("Defensive line", x, Y(3));
+    ctx.restore();
+  }
+
+  var PR = 36;
+  function drawPlayers() {
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for (var id in pos) {
+      var p = pos[id], st = STYLE[GROUP[id]], label = nm(id);
+      ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), PR, 0, Math.PI * 2);
+      ctx.fillStyle = st.fill; ctx.fill();
+      ctx.lineWidth = 3.5; ctx.strokeStyle = st.edge; ctx.stroke();
+      // Position names are shrunk to fit inside the circle.
+      var fs = 38;
+      ctx.font = "700 " + fs + "px Barlow, Arial, sans-serif";
+      var mt = ctx.measureText(label), wdt = mt && mt.width ? mt.width : 0, wmax = PR * 2 - 12;
+      if (wdt > wmax) { fs = Math.floor(fs * wmax / wdt); ctx.font = "700 " + fs + "px Barlow, Arial, sans-serif"; }
+      ctx.fillStyle = st.text;
+      ctx.fillText(label, X(p[0]), Y(p[1]) + 2);
+    }
+  }
+
+  function drawReds() {
+    if (!plan.reds) return;
+    // The high defensive line: four red defenders level with the dashed line.
+    var ys = [12, 27, 41, 56];
+    for (var k = 0; k < ys.length; k++) {
+      ctx.beginPath(); ctx.arc(X(lineX), Y(ys[k]), 26, 0, Math.PI * 2);
+      ctx.fillStyle = "#e03434"; ctx.fill();
+      ctx.lineWidth = 3.5; ctx.strokeStyle = "#6b0f0f"; ctx.stroke();
+    }
+    if (redC.a > 0.02) {
+      ctx.globalAlpha = redC.a;
+      ctx.beginPath(); ctx.arc(X(redC.x), Y(redC.y), 26, 0, Math.PI * 2);
+      ctx.fillStyle = "#e03434"; ctx.fill();
+      ctx.lineWidth = 3.5; ctx.strokeStyle = "#6b0f0f"; ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+  }
+  function drawPresser() {
+    if (presser.a < 0.02) return;
+    ctx.globalAlpha = presser.a;
+    ctx.beginPath(); ctx.arc(X(presser.x), Y(presser.y), 26, 0, Math.PI * 2);
+    ctx.fillStyle = "#e03434"; ctx.fill();
+    ctx.lineWidth = 3.5; ctx.strokeStyle = "#6b0f0f"; ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawBall() {
+    var bx = X(ball.x), by = Y(ball.y), r = 10;
+    ctx.beginPath(); ctx.arc(bx + 1.5, by + 2.5, r, 0, Math.PI * 2); ctx.fillStyle = "rgba(0,0,0,.3)"; ctx.fill();
+    ctx.beginPath(); ctx.arc(bx, by, r, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffffff"; ctx.fill();
+    ctx.lineWidth = 1.8; ctx.strokeStyle = "#111"; ctx.stroke();
+    ctx.fillStyle = "#111";
+    ctx.beginPath();
+    for (var i = 0; i < 5; i++) {
+      var ang = -Math.PI / 2 + i * 2 * Math.PI / 5;
+      var px = bx + Math.cos(ang) * 4, py = by + Math.sin(ang) * 4;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath(); ctx.fill();
+    for (var j = 0; j < 5; j++) {
+      var a2 = -Math.PI / 2 + j * 2 * Math.PI / 5;
+      ctx.beginPath(); ctx.arc(bx + Math.cos(a2) * 8, by + Math.sin(a2) * 8, 2.1, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  function updateReadout() {
+    var minX = 999, maxX = -999, minY = 999, maxY = -999;
+    for (var id in pos) {
+      if (id === "1") continue;
+      var p = pos[id];
+      if (p[0] < minX) minX = p[0]; if (p[0] > maxX) maxX = p[0];
+      if (p[1] < minY) minY = p[1]; if (p[1] > maxY) maxY = p[1];
+    }
+    elLen.textContent = Math.round(maxX - minX) + " m";
+    elWid.textContent = Math.round(maxY - minY) + " m";
+    elSide.textContent = ball.y < 27 ? "top" : (ball.y > 41 ? "bottom" : "centre");
+  }
+
+  function updateCamera(dt) {
+    var len = plan.seq.length - 1;
+    var want = !free && plan.options && elZoom.checked && (seqIdx >= len || (seqIdx === len - 1 && (phase === "chase" || (phase === "pass" && t > 0.5))));
+    var k = 1 - Math.exp(-dt * 2.2);
+    cam.z += ((want ? 1.55 : 1) - cam.z) * k;
+    var tx = want ? X(84) : CW / 2, ty = want ? Y(34 + plan.cs * 7) : CH / 2;
+    cam.cx += (tx - cam.cx) * k;
+    cam.cy += (ty - cam.cy) * k;
+    var hx = CW / (2 * cam.z), hy = CH / (2 * cam.z);
+    cam.cx = clamp(cam.cx, hx, CW - hx);
+    cam.cy = clamp(cam.cy, hy, CH - hy);
+  }
+
+  var last = 0, readoutTick = 0;
+  function frame(ts) {
+    var dt = Math.min(0.05, (ts - last) / 1000 || 0.016);
+    last = ts; nowT = ts;
+    updateSequence(dt);
+    updateLine(dt);
+    updatePlayers(dt);
+    updatePresser(dt);
+    updateCamera(dt);
+    if (optionsOn()) {
+      if (optReady(optStep)) optT += dt;
+      if (optT >= OPT_SECS && optStep < 2) { optStep++; optT = 0; }
+    } else { optStep = 0; optT = 0; }
+    ctx.setTransform(2, 0, 0, 2, 0, 0);
+    ctx.clearRect(0, 0, CW, CH);
+    ctx.save();
+    ctx.translate(CW / 2, CH / 2);
+    ctx.scale(cam.z, cam.z);
+    ctx.translate(-cam.cx, -cam.cy);
+    drawPitch();
+    drawDefLine();
+    drawReds();
+    drawSupport();
+    drawOptLine();
+    drawOptionLines();
+    drawPlayers();
+    drawPresser();
+    drawBall();
+    drawOptionLabels();
+    ctx.restore();
+    readoutTick += dt;
+    if (readoutTick > 0.15) { readoutTick = 0; updateReadout(); }
+    requestAnimationFrame(frame);
+  }
+
+  // ---- UI ----
+  function renderNote() {
+    elNote.innerHTML = "";
+    var h = document.createElement("h2"); h.textContent = "4-3-3: " + TITLES[plan.key]; elNote.appendChild(h);
+    var p1 = document.createElement("p");
+    p1.textContent = "Back four (LB, LCB, RCB, RB) and keeper. LCDM and RCDM hold the middle, with the CM in front of them, and a front three of LW, CF and RW.";
+    elNote.appendChild(p1);
+    var p2 = document.createElement("p"); p2.textContent = plan.text; elNote.appendChild(p2);
+  }
+
+  function setPlaying(v) {
+    playing = v;
+    elPlay.textContent = v ? "Pause" : "Play";
+    if (v && free) restartSequence(false);
+  }
+  elPlay.addEventListener("click", function () { setPlaying(!playing); });
+  elNext.addEventListener("click", function () {
+    if (free) restartSequence(false);
+    if (phase === "redball" || phase === "won") { phase = "hold"; dwell = 0; redC.a = 0; ball.x = pos[holder][0]; ball.y = pos[holder][1]; }
+    else if (phase === "hold") { dwell = 0; startPass(); }
+    else if (phase === "end") restartSequence(true);
+    if (!playing) { playing = true; elPlay.textContent = "Pause"; }
+  });
+  elReplay.addEventListener("click", function () {
+    restartSequence(false);
+    playing = true; elPlay.textContent = "Pause";
+  });
+  elSpeed.addEventListener("change", function () { speed = parseFloat(elSpeed.value) || 1; });
+  function planChanged() {
+    side = attack === "left" ? "left" : "right"; buildStep = 0;
+    refreshPlan(); renderNote(); restartSequence(false);
+    playing = true; elPlay.textContent = "Pause";
+  }
+  elVar.addEventListener("change", function () { variation = elVar.value; planChanged(); });
+  elAttack.addEventListener("change", function () { attack = elAttack.value; planChanged(); });
+
+  function pointerToPitch(ev) {
+    var r = canvas.getBoundingClientRect();
+    var cx = (ev.clientX - r.left) / r.width * CW;
+    var cy = (ev.clientY - r.top) / r.height * CH;
+    var wx = cam.cx + (cx - CW / 2) / cam.z, wy = cam.cy + (cy - CH / 2) / cam.z;
+    return { x: clamp((wx - PAD) / S, 0, PW), y: clamp((wy - PAD) / S, 0, PH) };
+  }
+  canvas.addEventListener("pointerdown", function (ev) {
+    dragging = true; free = true;
+    try { canvas.setPointerCapture(ev.pointerId); } catch (e) {}
+    var p = pointerToPitch(ev); ball.x = p.x; ball.y = p.y;
+  });
+  canvas.addEventListener("pointermove", function (ev) {
+    if (!dragging) return;
+    var p = pointerToPitch(ev); ball.x = p.x; ball.y = p.y;
+  });
+  function endDrag() { dragging = false; }
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", endDrag);
+  canvas.addEventListener("keydown", function (ev) {
+    var step = ev.shiftKey ? 8 : 3, moved = true;
+    if (!free) free = true;
+    if (ev.key === "ArrowLeft") ball.x = clamp(ball.x - step, 0, PW);
+    else if (ev.key === "ArrowRight") ball.x = clamp(ball.x + step, 0, PW);
+    else if (ev.key === "ArrowUp") ball.y = clamp(ball.y - step, 0, PH);
+    else if (ev.key === "ArrowDown") ball.y = clamp(ball.y + step, 0, PH);
+    else moved = false;
+    if (moved) ev.preventDefault();
+  });
+
+  refreshPlan();
+  initPositions();
+  renderNote();
+  restartSequence(false);
+  if (reduce) { elPlay.textContent = "Play"; setStatus("Paused. Press Play to start the animation."); }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
